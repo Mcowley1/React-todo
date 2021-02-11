@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -6,6 +6,22 @@ function App() {
   const [todo, setTodo] = React.useState("")
   const [todoEditing, setTodoEditing] = React.useState(null)
   const [editingText, setEditing] = React.useState("")
+
+  React.useEffect(() => {
+    const temp = localStorage.getItem("todos")
+    const loadedTodos = JSON.parse(temp)
+
+    if (loadedTodos) {
+      setTodos(loadedTodos)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const temp = JSON.stringify(todos)
+    localStorage.setItem("todos", json)
+  }, [todos])
+
+
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -37,6 +53,18 @@ function App() {
     setTodos(updatedTodos)
   }
 
+  function editTodo(id) {
+    const updatedTodos = [ ... todos].map((todo) => {
+      if (todo.id === id) {
+        todo.text = editingText
+      }
+      return todo
+    })
+    setTodos(updatedTodos)
+    setTodoEditing(null)
+    setEditingText("")
+  }
+
   return (
     <div className="App">
       <form onSubmit={handleSubmit}>
@@ -49,8 +77,9 @@ function App() {
         
         <button onClick={() => deleteTodo(todo.id)}>Delete</button>
         <input type="checkbox" onChange={() => toggleComplete(todo.id)} checked={todo.completed} />
-        <button onClick={() => setTodoEditing(todo.id)}>Edit Todo</button>
-        <button onClick=>Submit Edits</button>
+        {todoEditing === todo.id ? (<button onClick={() => editTodo(todo.id)}>Submit Edits</button>) : (<button onClick={() => setTodoEditing(todo.id)}>Edit Todo</button>)}
+        
+        
       </div>)}
     </div>
   );
